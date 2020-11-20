@@ -1,5 +1,7 @@
 import os
 import shutil
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
 class DesktopCleaner:
     def desktop_path_create(self):
@@ -8,18 +10,35 @@ class DesktopCleaner:
     def create_custom_path(self, path):
         self.path = path
 
+    def get_path(self):
+        try:
+            return self.path
+        except:
+            return "No path selected!"
+        
+    def select_path(self):
+        root = tk.Tk()
+        root.withdraw()
+        file_path = filedialog.askdirectory()
+        if file_path:
+            self.path = file_path
+
     def clean_desktop(self):
-        if (self.path != None or self.path != ""):
+        try:
+            self.path
+        except AttributeError:
+            messagebox.showwarning("Error!", "No Path was selected!")
+        else:
             try:
                 for element in os.listdir(self.path):
                     if "." in element:
                         filename, file_extension = os.path.splitext(os.path.basename(f'{self.path}/{element}'))
-                        print(filename)
                         d_file = DesktopFile(filename, file_extension)
                         d_file.create_dir(self.path)
                         d_file.move_file(self.path)
+                del self.path
             except:
-                print("Path is not good, check if you have called the desktop_path_create function.\nOtherwise check if the custom created path is good.\n")
+                messagebox.showwarning("Error!","Path is not good, check if you have called the desktop_path_create function.\nOtherwise check if the custom created path is good.\n")
 
 
 class DesktopFile:
@@ -42,8 +61,3 @@ class DesktopFile:
             new_path = f'{path}/{self.new_directory} Files/{self.name}{self.filetype}'
             shutil.move(original_path, new_path)
 
-
-desktop_Clean = DesktopCleaner()
-desktop_Clean.create_custom_path("lol")
-##desktop_Clean.desktop_path_create()
-desktop_Clean.clean_desktop()
